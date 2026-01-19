@@ -1,0 +1,64 @@
+/* Stopwatch Component Styles */
+
+.stopwatch-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.stopwatch-container h2 {
+  font-size: 20px;
+  margin-bottom: 24px;
+  color: var(--text-color);
+}
+
+.stopwatch-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+  background: var(--light-bg);
+  padding: 40px 20px;
+  border-radius: 8px;
+}
+
+.large-stopwatch-display {
+  font-size: 72px;
+  font-weight: 300;
+  text-align: center;
+  color: var(--secondary-color);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.stopwatch-container .controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .stopwatch-container {
+    padding: 16px;
+  }
+
+  .large-stopwatch-display {
+    font-size: 48px;
+  }
+
+  .stopwatch-display {
+    padding: 30px 16px;
+  }
+
+  .stopwatch-container .controls {
+    flex-direction: column;
+  }
+
+  .stopwatch-container .btn {
+    width: 100%;
+  }
+}

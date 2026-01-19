@@ -1,0 +1,42 @@
+{
+  "name": "Zoom Timer App",
+  "short_description": "A timer and stopwatch app to manage meeting time effectively",
+  "long_description": "Zoom Timer App is a simple but important tool for improving time management skills and streamlining meetings. The app includes both timer and stopwatch functionality. Set timers for personal use or make them visible to all participants. Optional audio alarm when the timer expires. Timers can be customized to any duration or chosen from convenient presets.",
+  "support_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0068677",
+  "category": "Productivity",
+  "use_cases": [
+    "Meeting Time Management",
+    "Task Duration Tracking",
+    "Presentation Timing",
+    "Break Management"
+  ],
+  "visibility": "public",
+  "slug": "zoom-timer",
+  "short_name": "Timer",
+  "scopes": ["zoomapp:inmeeting", "zoomapp:install"],
+  "deployment_target": "client",
+  "endpoints": {
+    "base_url": "https://timer.zoomapp.cloud/"
+  },
+  "sdk_methods": [
+    "setVirtualForeground",
+    "removeVirtualForeground",
+    "onMyMediaChange",
+    "setDynamicIndicator",
+    "getMeetingContext",
+    "closeApp"
+  ],
+  "required_account_features": [],
+  "ratings": [],
+  "icon": {
+    "png_icon_light": "https://assets.zoom.us/images/en-us/misc/apps/timer-app-icon-light.png",
+    "png_icon_dark": "https://assets.zoom.us/images/en-us/misc/apps/timer-app-icon-dark.png"
+  },
+  "author": {
+    "name": "Zoom",
+    "email": "support@zoom.us",
+    "url": "https://www.zoom.com"
+  },
+  "version": "1.0.0",
+  "minimum_zoom_version": "5.14.10"
+}

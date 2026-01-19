@@ -1,0 +1,49 @@
+{
+  "name": "zoom-timer-app",
+  "version": "1.0.0",
+  "description": "A Zoom Marketplace Timer App for managing time in meetings",
+  "type": "zoomapp",
+  "zoom_app": {
+    "display_name": "Timer",
+    "instance_id": "YOUR_INSTANCE_ID",
+    "client_id": "YOUR_CLIENT_ID",
+    "url": "https://timer.zoomapp.cloud",
+    "scopes": [
+      "zoomapp:inmeeting",
+      "zoomapp:install"
+    ]
+  },
+  "capabilities": {
+    "timer": {
+      "enabled": true,
+      "features": [
+        "custom_duration",
+        "preset_timers",
+        "audio_alarm",
+        "show_to_all",
+        "keyboard_shortcuts"
+      ]
+    },
+    "stopwatch": {
+      "enabled": true,
+      "features": [
+        "start_pause_resume",
+        "reset",
+        "elapsed_tracking"
+      ]
+    },
+    "integration": {
+      "zoom_sdk": true,
+      "virtual_foreground": true,
+      "dynamic_indicator": true,
+      "media_monitoring": true
+    }
+  },
+  "requirements": {
+    "minimum_zoom_version": "5.14.10",
+    "supported_platforms": [
+      "windows",
+      "macos"
+    ]
+  }
+}
