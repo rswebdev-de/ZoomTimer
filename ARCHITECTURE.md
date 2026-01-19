@@ -2,218 +2,163 @@
 
 ## 📊 Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Zoom Desktop Client                          │
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              Zoom Timer App (WebView)                    │   │
-│  │                                                          │   │
-│  │  ┌────────────────────────────────────────────────┐    │   │
-│  │  │           React App Component                 │    │   │
-│  │  │  ┌──────────────────────────────────────┐    │    │   │
-│  │  │  │     Tab Navigation (Timer/Stopwatch)│    │    │   │
-│  │  │  └──────────────────────────────────────┘    │    │   │
-│  │  │  ┌──────────────────────────────────────┐    │    │   │
-│  │  │  │    Timer Component / Stopwatch Comp  │    │    │   │
-│  │  │  │  ┌────────────────────────────────┐ │    │    │   │
-│  │  │  │  │   UI Elements (Buttons, Input)│ │    │    │   │
-│  │  │  │  │   - Time Input Fields         │ │    │    │   │
-│  │  │  │  │   - Control Buttons           │ │    │    │   │
-│  │  │  │  │   - Preset Buttons            │ │    │    │   │
-│  │  │  │  │   - Options (Audio, Show All) │ │    │    │   │
-│  │  │  │  └────────────────────────────────┘ │    │    │   │
-│  │  │  └──────────────────────────────────────┘    │    │   │
-│  │  │                                              │    │   │
-│  │  │  ┌────────────────────────────────────┐    │    │   │
-│  │  │  │   KeyboardShortcutsManager        │    │    │   │
-│  │  │  │   - Enter/Return: Start/Pause    │    │    │   │
-│  │  │  │   - Esc: Cancel                  │    │    │   │
-│  │  │  │   - Arrow Keys: Add/Subtract     │    │    │   │
-│  │  │  └────────────────────────────────────┘    │    │   │
-│  │  └────────────────────────────────────────────┘    │   │
-│  │                                                     │   │
-│  │  ┌────────────────────────────────────────────┐    │   │
-│  │  │       Managers & Services                 │    │   │
-│  │  │  ┌──────────────────────────────────┐    │    │   │
-│  │  │  │   TimerManager                  │    │    │   │
-│  │  │  │   - Timer logic                 │    │    │   │
-│  │  │  │   - State management            │    │    │   │
-│  │  │  │   - Time calculations           │    │    │   │
-│  │  │  └──────────────────────────────────┘    │    │   │
-│  │  │  ┌──────────────────────────────────┐    │    │   │
-│  │  │  │   StopwatchManager              │    │    │   │
-│  │  │  │   - Elapsed time tracking       │    │    │   │
-│  │  │  │   - Start/Pause/Reset logic     │    │    │   │
-│  │  │  └──────────────────────────────────┘    │    │   │
-│  │  │  ┌──────────────────────────────────┐    │    │   │
-│  │  │  │   ZoomSDKService                │    │    │   │
-│  │  │  │   - Virtual foreground          │    │    │   │
-│  │  │  │   - Dynamic indicator           │    │    │   │
-│  │  │  │   - Media change monitoring     │    │    │   │
-│  │  │  │   - Meeting context             │    │    │   │
-│  │  │  └──────────────────────────────────┘    │    │   │
-│  │  └────────────────────────────────────────────┘    │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                         ▲                                     │
-│                         │ Zoom Apps SDK                       │
-└─────────────────────────┼─────────────────────────────────────┘
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-        ▼                 ▼                 ▼
-   Virtual Foreground  Dynamic Indicator  Media Events
-   (Video Display)     (Meeting Window)   (Video/Audio)
+```mermaid
+graph TD
+    ZDC["Zoom Desktop Client"]
+    WEBVIEW["Zoom Timer App (WebView)"]
+    REACT["React App Component"]
+    TAB["Tab Navigation<br/>(Timer/Stopwatch)"]
+    COMPONENTS["Timer/Stopwatch Components<br/>UI Elements"]
+    KEYBOARD["KeyboardShortcutsManager<br/>- Enter/Return: Start/Pause<br/>- Esc: Cancel<br/>- Arrow Keys: Add/Subtract"]
+    MANAGERS["Managers & Services"]
+    TIMER_M["TimerManager<br/>- Timer logic<br/>- State management<br/>- Time calculations"]
+    STOPWATCH_M["StopwatchManager<br/>- Elapsed time tracking<br/>- Start/Pause/Reset"]
+    ZOOM_SDK["ZoomSDKService<br/>- Virtual foreground<br/>- Dynamic indicator<br/>- Media monitoring<br/>- Meeting context"]
+    ZOOM_API["Zoom Apps SDK"]
+    VF["Virtual Foreground<br/>(Video Display)"]
+    DI["Dynamic Indicator<br/>(Meeting Window)"]
+    ME["Media Events<br/>(Video/Audio)"]
+    
+    ZDC --> WEBVIEW
+    WEBVIEW --> REACT
+    REACT --> TAB
+    REACT --> COMPONENTS
+    REACT --> KEYBOARD
+    REACT --> MANAGERS
+    MANAGERS --> TIMER_M
+    MANAGERS --> STOPWATCH_M
+    MANAGERS --> ZOOM_SDK
+    ZOOM_SDK --> ZOOM_API
+    ZOOM_API --> VF
+    ZOOM_API --> DI
+    ZOOM_API --> ME
 ```
 
 ## 🔄 Data Flow
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                    User Interaction (UI)                          │
-│  - Set timer duration                                            │
-│  - Click buttons (Start/Pause/Resume/Cancel)                     │
-│  - Toggle options (Audio/Show to All)                            │
-│  - Use keyboard shortcuts                                        │
-└───────────┬────────────────────────────────────────────┬─────────┘
-            │                                            │
-            ▼                                            ▼
-    ┌─────────────────┐                       ┌──────────────────┐
-    │ Timer Component │                       │ Keyboard Handler │
-    │ Stopwatch Comp  │                       │ (KeyboardManager)│
-    └────────┬────────┘                       └────────┬─────────┘
-             │                                        │
-             └──────────────┬───────────────────────┘
-                            │
-                            ▼
-        ┌─────────────────────────────────┐
-        │   TimerManager /               │
-        │   StopwatchManager             │
-        │   (Business Logic)             │
-        │   - Calculate time             │
-        │   - Manage state               │
-        │   - Trigger callbacks          │
-        └────────────┬────────────────────┘
-                     │
-         ┌───────────┴─────────────┐
-         │                         │
-         ▼                         ▼
-    ┌─────────────┐          ┌─────────────────┐
-    │  UI Update  │          │  ZoomSDKService │
-    │  - Display  │          │  - Virtual FG   │
-    │  - Buttons  │          │  - Indicator    │
-    └─────────────┘          │  - Media Events │
-                             └─────────────────┘
-                                     │
-                                     ▼
-                            Zoom Meeting Features
-                            - Show timer to all
-                            - Display video overlay
-                            - Sync with participants
+```mermaid
+graph TD
+    USER["User Interaction<br/>- Set timer duration<br/>- Click buttons<br/>- Toggle options<br/>- Use keyboard shortcuts"]
+    TIMER_C["Timer Component"]
+    STOPWATCH_C["Stopwatch Component"]
+    KEYBOARD_H["Keyboard Handler<br/>(KeyboardManager)"]
+    TIMER_M["TimerManager/<br/>StopwatchManager<br/>(Business Logic)<br/>- Calculate time<br/>- Manage state<br/>- Trigger callbacks"]
+    UI_UPDATE["UI Update<br/>- Display<br/>- Buttons"]
+    ZOOM_SERVICE["ZoomSDKService<br/>- Virtual FG<br/>- Indicator<br/>- Media Events"]
+    ZOOM_FEATURES["Zoom Meeting Features<br/>- Show timer to all<br/>- Display video overlay<br/>- Sync with participants"]
+    
+    USER --> TIMER_C
+    USER --> STOPWATCH_C
+    USER --> KEYBOARD_H
+    TIMER_C --> TIMER_M
+    STOPWATCH_C --> TIMER_M
+    KEYBOARD_H --> TIMER_M
+    TIMER_M --> UI_UPDATE
+    TIMER_M --> ZOOM_SERVICE
+    ZOOM_SERVICE --> ZOOM_FEATURES
 ```
 
 ## 🗂️ File Organization
 
-```
-ZoomTimer/
-│
-├── 📄 Configuration Files
-│   ├── package.json                 # Dependencies & scripts
-│   ├── tsconfig.json               # TypeScript configuration
-│   ├── webpack.config.js           # Build configuration
-│   ├── .gitignore                  # Git ignore rules
-│   ├── .env.example                # Environment template
-│   ├── manifest.json               # Marketplace manifest
-│   └── zoomapp.json               # Zoom app configuration
-│
-├── 📁 src/                          # Source code
-│   ├── index.ts                    # App entry point
-│   ├── index.css                   # Global styles
-│   │
-│   ├── 📁 components/              # React components
-│   │   ├── App.tsx                # Main app (tabs)
-│   │   ├── App.css                # App styles
-│   │   ├── Timer.tsx              # Timer UI
-│   │   ├── Timer.css              # Timer styles
-│   │   ├── Stopwatch.tsx          # Stopwatch UI
-│   │   └── Stopwatch.css          # Stopwatch styles
-│   │
-│   ├── 📁 services/               # External integrations
-│   │   └── ZoomSDKService.ts      # Zoom SDK wrapper
-│   │
-│   └── 📁 utils/                  # Utility classes
-│       ├── TimerManager.ts        # Timer business logic
-│       ├── StopwatchManager.ts    # Stopwatch logic
-│       └── KeyboardShortcutsManager.ts
-│
-├── 📁 public/                       # Static assets
-│   └── index.html                 # HTML template
-│
-├── 📁 dist/                        # Built files (generated)
-│   ├── bundle.js                  # Bundled JavaScript
-│   ├── main.css                   # Bundled CSS
-│   └── ...
-│
-├── 📚 Documentation
-│   ├── README.md                  # Main documentation
-│   ├── QUICKSTART.md              # Quick start guide
-│   ├── DEPLOYMENT_GUIDE.md        # Deployment instructions
-│   ├── MARKETPLACE_CONFIG.md      # Marketplace setup
-│   └── CONTRIBUTING.md            # Contributing guidelines
-│
-└── 📄 License & Info
-    └── LICENSE                    # MIT License
+```mermaid
+mindmap
+  root((ZoomTimer))
+    Configuration Files
+      package.json
+      tsconfig.json
+      webpack.config.js
+      .gitignore
+      .env.example
+      manifest.json
+      zoomapp.json
+    src
+      index.ts
+      index.css
+      components
+        App.tsx
+        App.css
+        Timer.tsx
+        Timer.css
+        Stopwatch.tsx
+        Stopwatch.css
+      services
+        ZoomSDKService.ts
+      utils
+        TimerManager.ts
+        StopwatchManager.ts
+        KeyboardShortcutsManager.ts
+    public
+      index.html
+    dist
+      bundle.js
+      main.css
+    Documentation
+      README.md
+      QUICKSTART.md
+      DEPLOYMENT_GUIDE.md
+      MARKETPLACE_CONFIG.md
+      CONTRIBUTING.md
+    License
+      LICENSE
 ```
 
 ## 🔌 Component Interactions
 
 ### Timer Component Flow
-```
-TimerComponent
-├── State: hours, minutes, seconds, soundEnabled, showToAll
-├── Creates: TimerManager instance
-├── On Mount:
-│   ├── Initialize TimerManager with time values
-│   ├── Set tick callback (update display)
-│   └── Set complete callback (play sound, notify)
-│
-├── User Actions:
-│   ├── Click Start → timerManager.start()
-│   ├── Click Pause → timerManager.pause()
-│   ├── Click Resume → timerManager.resume()
-│   ├── Click Reset → timerManager.reset()
-│   ├── Click Cancel → timerManager.stop()
-│   ├── Select Preset → init with preset values
-│   └── Toggle Options → update state flags
-│
-└── Callbacks:
-    ├── onTick → Update display, show in Zoom
-    └── onComplete → Play alarm, clear indicator
+```mermaid
+graph TD
+    TC["TimerComponent"]
+    STATE["State<br/>- hours, minutes, seconds<br/>- soundEnabled, showToAll"]
+    TM["Creates: TimerManager"]
+    MOUNT["On Mount<br/>- Initialize with values<br/>- Set tick callback<br/>- Set complete callback"]
+    START["Click Start<br/>timerManager.start()"]
+    PAUSE["Click Pause<br/>timerManager.pause()"]
+    RESUME["Click Resume<br/>timerManager.resume()"]
+    RESET["Click Reset<br/>timerManager.reset()"]
+    CANCEL["Click Cancel<br/>timerManager.stop()"]
+    PRESET["Select Preset<br/>init with preset values"]
+    OPTIONS["Toggle Options<br/>update state flags"]
+    TICK["onTick<br/>Update display, show in Zoom"]
+    COMPLETE["onComplete<br/>Play alarm, clear indicator"]
+    
+    TC --> STATE
+    TC --> TM
+    TC --> MOUNT
+    TC --> START
+    TC --> PAUSE
+    TC --> RESUME
+    TC --> RESET
+    TC --> CANCEL
+    TC --> PRESET
+    TC --> OPTIONS
+    START --> TICK
+    PAUSE --> TICK
+    RESUME --> TICK
+    TM --> COMPLETE
 ```
 
 ### Zoom SDK Integration Flow
-```
-ZoomSDKService
-├── Initialize
-│   ├── Import @zoom/appssdk
-│   ├── Create ZoomApp instance
-│   └── Set initialized flag
-│
-├── Virtual Foreground (Timer Display)
-│   ├── Generate timer image
-│   └── Call setVirtualForeground()
-│
-├── Dynamic Indicator (Meeting Window)
-│   ├── Format time string
-│   └── Call setDynamicIndicator(label, color)
-│
-├── Media Monitoring
-│   ├── Listen for onMyMediaChange
-│   └── Adjust timer dimensions
-│
-└── Context
-    ├── getMeetingContext()
-    └── Get participant info
+```mermaid
+mindmap
+  root((ZoomSDKService))
+    Initialize
+      Import @zoom/appssdk
+      Create ZoomApp instance
+      Set initialized flag
+    Virtual Foreground
+      Timer Display
+        Generate timer image
+        Call setVirtualForeground
+    Dynamic Indicator
+      Meeting Window
+        Format time string
+        Call setDynamicIndicator
+    Media Monitoring
+      Listen for onMyMediaChange
+      Adjust timer dimensions
+    Context
+      getMeetingContext
+      Get participant info
 ```
 
 ## 🎯 Key Features & Implementation
@@ -231,25 +176,16 @@ ZoomSDKService
 
 ## 🚀 Deployment Architecture
 
-```
-┌─────────────┐      ┌──────────────┐      ┌──────────────┐
-│  Developer  │      │   Build      │      │   Server     │
-│  Workspace  │─────▶│  Pipeline    │─────▶│   Deployment │
-│             │      │              │      │              │
-│ - Source    │      │ - npm build  │      │ - Node.js    │
-│ - Config    │      │ - Webpack    │      │ - Express    │
-│ - Assets    │      │ - Minify     │      │ - HTTPS      │
-└─────────────┘      └──────────────┘      └──────────────┘
-                                                    │
-                                                    ▼
-                                            ┌──────────────┐
-                                            │   Zoom       │
-                                            │   Marketplace│
-                                            │              │
-                                            │ - Published  │
-                                            │ - Installable│
-                                            │ - Updateable │
-                                            └──────────────┘
+```mermaid
+graph LR
+    DEV["Developer Workspace<br/>- Source<br/>- Config<br/>- Assets"]
+    BUILD["Build Pipeline<br/>- npm build<br/>- Webpack<br/>- Minify"]
+    SERVER["Server Deployment<br/>- Node.js<br/>- Express<br/>- HTTPS"]
+    MARKET["Zoom Marketplace<br/>- Published<br/>- Installable<br/>- Updateable"]
+    
+    DEV --> BUILD
+    BUILD --> SERVER
+    SERVER --> MARKET
 ```
 
 ## 📈 Performance Considerations
@@ -265,18 +201,19 @@ ZoomSDKService
 
 ## 🔐 Security Model
 
-```
-User Data
-    │
-    ├─ Device Local Only (No server storage)
-    │  ├── Timer values
-    │  ├── Stopwatch elapsed time
-    │  └── Settings (audio, show all)
-    │
-    └─ Zoom Meeting Context (Shared within meeting)
-       ├── Dynamic indicator (timer display)
-       ├── Virtual foreground (video overlay)
-       └── Participant sync
+```mermaid
+mindmap
+  root((User Data))
+    Device Local Only
+      No server storage
+        Timer values
+        Stopwatch elapsed time
+        Settings - audio, show all
+    Zoom Meeting Context
+      Shared within meeting
+        Dynamic indicator - timer display
+        Virtual foreground - video overlay
+        Participant sync
 ```
 
 ---
