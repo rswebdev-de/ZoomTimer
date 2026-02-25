@@ -1,0 +1,97 @@
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  REGISTRY_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+before_script:
+  - echo "Starting pipeline for branch $CI_COMMIT_REF_NAME"
+
+build:
+  stage: build
+  image: node:18-alpine
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+    expire_in: 1 hour
+  cache:
+    paths:
+      - node_modules/
+  only:
+    - main
+    - develop
+    - merge_requests
+
+test:
+  stage: test
+  image: node:18-alpine
+  script:
+    - npm ci
+    - npm test
+  coverage: '/Coverage: \d+\.\d+%/'
+  only:
+    - main
+    - develop
+    - merge_requests
+  cache:
+    paths:
+      - node_modules/
+
+docker_build:
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker build -t $REGISTRY_IMAGE .
+    - docker tag $REGISTRY_IMAGE $CI_REGISTRY_IMAGE:latest
+    - docker push $REGISTRY_IMAGE
+    - docker push $CI_REGISTRY_IMAGE:latest
+  after_script:
+    - docker logout $CI_REGISTRY
+  only:
+    - main
+    - develop
+  dependencies:
+    - build
+
+deploy_staging:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying to staging environment"
+    - "echo \"Image: $REGISTRY_IMAGE\""
+  environment:
+    name: staging
+    url: https://staging.zoom-timer.example.com
+  only:
+    - develop
+  dependencies:
+    - docker_build
+  when: manual
+
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying to production environment"
+    - "echo \"Image: $CI_REGISTRY_IMAGE:latest\""
+  environment:
+    name: production
+    url: https://zoom-timer.example.com
+  only:
+    - main
+  dependencies:
+    - docker_build
+  when: manual
