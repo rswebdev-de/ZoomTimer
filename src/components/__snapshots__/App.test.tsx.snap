@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`App Component - Visual Tests matches snapshot when Stopwatch tab is selected 1`] = `
+<div>
+  <div
+    class="app-container"
+  >
+    <div
+      class="app-header"
+    >
+      <h1>
+        Zoom Timer App
+      </h1>
+      <div
+        class="tab-navigation"
+      >
+        <button
+          class="tab-btn "
+        >
+          Timer
+        </button>
+        <button
+          class="tab-btn active"
+        >
+          Stopwatch
+        </button>
+      </div>
+    </div>
+    <div
+      class="app-content"
+    >
+      <div
+        data-testid="stopwatch-component"
+      >
+        Stopwatch Content
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`App Component - Visual Tests matches snapshot with default timer tab 1`] = `
+<div>
+  <div
+    class="app-container"
+  >
+    <div
+      class="app-header"
+    >
+      <h1>
+        Zoom Timer App
+      </h1>
+      <div
+        class="tab-navigation"
+      >
+        <button
+          class="tab-btn active"
+        >
+          Timer
+        </button>
+        <button
+          class="tab-btn "
+        >
+          Stopwatch
+        </button>
+      </div>
+    </div>
+    <div
+      class="app-content"
+    >
+      <div
+        data-testid="timer-component"
+      >
+        Timer Content
+      </div>
+    </div>
+  </div>
+</div>
+`;

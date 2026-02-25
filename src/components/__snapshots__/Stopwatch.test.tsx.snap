@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Stopwatch Component - Visual Tests matches snapshot in idle state 1`] = `
+<div>
+  <div
+    class="stopwatch-container"
+  >
+    <h2>
+      Stopwatch
+    </h2>
+    <div
+      class="stopwatch-display"
+    >
+      <div
+        class="large-stopwatch-display"
+      >
+        00:00:00
+      </div>
+    </div>
+    <div
+      class="controls"
+    >
+      <button
+        class="btn btn-primary"
+      >
+        Start
+      </button>
+      <button
+        class="btn btn-secondary"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Stopwatch Component - Visual Tests matches snapshot when stopwatch is paused 1`] = `
+<div>
+  <div
+    class="stopwatch-container"
+  >
+    <h2>
+      Stopwatch
+    </h2>
+    <div
+      class="stopwatch-display"
+    >
+      <div
+        class="large-stopwatch-display"
+      >
+        01:01:01
+      </div>
+    </div>
+    <div
+      class="controls"
+    >
+      <button
+        class="btn btn-primary"
+      >
+        Resume
+      </button>
+      <button
+        class="btn btn-secondary"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Stopwatch Component - Visual Tests matches snapshot when stopwatch is running 1`] = `
+<div>
+  <div
+    class="stopwatch-container"
+  >
+    <h2>
+      Stopwatch
+    </h2>
+    <div
+      class="stopwatch-display"
+    >
+      <div
+        class="large-stopwatch-display"
+      >
+        00:01:05
+      </div>
+    </div>
+    <div
+      class="controls"
+    >
+      <button
+        class="btn btn-secondary"
+      >
+        Pause
+      </button>
+      <button
+        class="btn btn-secondary"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+</div>
+`;
