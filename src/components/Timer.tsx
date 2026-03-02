@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import TimerManager, { TimerSettings, TimerStatus } from '../utils/TimerManager';
+import React, { useState, useEffect, useRef } from 'react';
+import TimerManager, { TimerStatus } from '../utils/TimerManager';
 import zoomSDKService from '../services/ZoomSDKService';
 import './Timer.css';
 
@@ -25,6 +25,18 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showToAll, setShowToAll] = useState(false);
 
+  // Use refs to avoid stale closures in callbacks
+  const soundEnabledRef = useRef(soundEnabled);
+  const showToAllRef = useRef(showToAll);
+
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    showToAllRef.current = showToAll;
+  }, [showToAll]);
+
   useEffect(() => {
     timerManager.init(hours, minutes, seconds);
 
@@ -32,14 +44,22 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       setStatus(status);
       if (status.state === 'running') {
         zoomSDKService.setDynamicIndicator(status.displayText);
+        if (showToAllRef.current) {
+          zoomSDKService.setVirtualForeground(
+            createTimerImageData(status.displayText)
+          );
+        }
       }
     });
 
     timerManager.onComplete(() => {
-      if (soundEnabled) {
+      if (soundEnabledRef.current) {
         playAudio();
       }
       zoomSDKService.removeDynamicIndicator();
+      if (showToAllRef.current) {
+        zoomSDKService.removeVirtualForeground();
+      }
       if (onComplete) {
         onComplete();
       }
@@ -49,6 +69,23 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       timerManager.stop();
     };
   }, []);
+
+  const createTimerImageData = (displayText: string): ImageData => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 320;
+    canvas.height = 80;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.roundRect(0, 0, canvas.width, canvas.height, 8);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 36px Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(displayText, canvas.width / 2, canvas.height / 2);
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  };
 
   const playAudio = () => {
     try {
@@ -94,6 +131,9 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const handleCancel = () => {
     timerManager.stop();
     zoomSDKService.removeDynamicIndicator();
+    if (showToAllRef.current) {
+      zoomSDKService.removeVirtualForeground();
+    }
   };
 
   const handlePreset = (presetSeconds: number) => {

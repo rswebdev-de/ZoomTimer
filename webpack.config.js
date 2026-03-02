@@ -38,7 +38,4 @@ module.exports = {
     hot: true,
     open: true,
   },
-  externals: {
-    '@zoom/appssdk': '@zoom/appssdk',
-  },
 };

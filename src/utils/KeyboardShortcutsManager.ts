@@ -7,6 +7,11 @@ export type KeyboardCallback = (action: string) => void;
 export class KeyboardShortcutsManager {
   private listeners: Map<string, Set<KeyboardCallback>> = new Map();
   private registered: boolean = false;
+  private boundHandleKeyDown: (event: KeyboardEvent) => void;
+
+  constructor() {
+    this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+  }
 
   /**
    * Register keyboard event listener
@@ -14,7 +19,7 @@ export class KeyboardShortcutsManager {
   public register(): void {
     if (this.registered) return;
 
-    document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    document.addEventListener('keydown', this.boundHandleKeyDown);
     this.registered = true;
   }
 
@@ -24,7 +29,7 @@ export class KeyboardShortcutsManager {
   public unregister(): void {
     if (!this.registered) return;
 
-    document.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    document.removeEventListener('keydown', this.boundHandleKeyDown);
     this.registered = false;
   }
 

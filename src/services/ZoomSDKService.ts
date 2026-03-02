@@ -219,7 +219,7 @@ export class ZoomSDKService {
     }
 
     try {
-      await zoomSdk.showNotification(options as NotificationOptions);
+      await (zoomSdk as any).showNotification(options);
     } catch (error) {
       console.error('Failed to show notification:', error);
     }

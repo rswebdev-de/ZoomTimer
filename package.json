@@ -2,7 +2,7 @@
   "name": "zoom-timer-app",
   "version": "1.0.0",
   "description": "A Zoom Marketplace Timer App for managing time in meetings",
-  "main": "dist/index.js",
+  "main": "dist/bundle.js",
   "scripts": {
     "dev": "webpack serve --mode development",
     "build": "webpack --mode production",
@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@zoom/appssdk": "^0.16.0",
+    "express": "^4.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -31,12 +32,11 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
-    "@types/react": "^19.2.8",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
     "@types/supertest": "^6.0.3",
     "babel-loader": "^9.1.3",
     "css-loader": "^7.1.4",
-    "express": "^4.18.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",

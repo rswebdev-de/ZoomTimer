@@ -4,10 +4,28 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from dist
-app.use(express.static(path.join(__dirname, 'public')));
+// Zoom requires these OWASP security headers on all text/html responses.
+// Without them, the app is blocked from rendering in the Zoom client.
+app.use((req, res, next) => {
+  res.set({
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'same-origin',
+    'Content-Security-Policy': [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data:",
+      "connect-src 'self'",
+      "frame-ancestors 'self'",
+    ].join('; '),
+  });
+  next();
+});
 
-// Serve dist folder
+// Serve static files from public (index.html) and dist (bundle.js)
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Health check endpoint

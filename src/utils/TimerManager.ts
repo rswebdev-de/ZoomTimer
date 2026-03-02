@@ -25,7 +25,7 @@ export class TimerManager {
   private totalSeconds: number = 0;
   private intervalId: NodeJS.Timeout | null = null;
   private onTickCallback: ((status: TimerStatus) => void) | null = null;
-  private onCompleteCallback: ((settings: TimerSettings) => void) | null = null;
+  private onCompleteCallback: (() => void) | null = null;
 
   /**
    * Initialize timer with hours, minutes, seconds
@@ -138,7 +138,7 @@ export class TimerManager {
   /**
    * Set callback for timer completion
    */
-  public onComplete(callback: (settings: TimerSettings) => void): void {
+  public onComplete(callback: () => void): void {
     this.onCompleteCallback = callback;
   }
 
@@ -193,13 +193,7 @@ export class TimerManager {
 
     // Trigger completion callback
     if (this.onCompleteCallback) {
-      this.onCompleteCallback({
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        soundEnabled: false,
-        showToAll: false,
-      });
+      this.onCompleteCallback();
     }
   }
 }
