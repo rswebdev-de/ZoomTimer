@@ -80,7 +80,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
     ctx.roundRect(0, 0, canvas.width, canvas.height, 8);
     ctx.fill();
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 36px Roboto, sans-serif';
+    ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(displayText, canvas.width / 2, canvas.height / 2);

@@ -39,7 +39,7 @@ src/
     StopwatchManager.ts      # stopwatch state machine
     KeyboardShortcutsManager.ts  # keyboard event handler (not currently wired up)
 public/
-  index.html                 # HTML shell, loads Roboto font
+  index.html                 # HTML shell
 server.js                    # Express production server with OWASP headers
 ```
 
