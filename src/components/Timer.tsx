@@ -29,6 +29,9 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const soundEnabledRef = useRef(soundEnabled);
   const showToAllRef = useRef(showToAll);
 
+  const isRunning = status?.state === 'running';
+  const isPaused = status?.state === 'paused';
+
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
@@ -42,12 +45,19 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
 
     timerManager.onTick((status) => {
       setStatus(status);
-      if (status.state === 'running') {
+      if (isRunning) {
         zoomSDKService.setDynamicIndicator(status.displayText);
         if (showToAllRef.current) {
           zoomSDKService.setVirtualForeground(
             createTimerImageData(status.displayText)
           );
+        } else {
+          zoomSDKService.removeVirtualForeground();
+        }
+      } else if (!isPaused && !isRunning) {
+        zoomSDKService.removeDynamicIndicator();
+        if (showToAllRef.current) {
+          zoomSDKService.removeVirtualForeground();
         }
       }
     });
@@ -165,9 +175,6 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
     timerManager.init(hours, minutes, newSeconds);
   };
 
-  const isRunning = status?.state === 'running';
-  const isPaused = status?.state === 'paused';
-
   return (
     <div className="timer-container">
       <h2>Timer</h2>
@@ -183,7 +190,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
               ▲
             </button>
             <input
-              type="number"
+              type="text"
               min="0"
               value={String(hours).padStart(2, '0')}
               onChange={(e) => {
@@ -215,7 +222,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
               ▲
             </button>
             <input
-              type="number"
+              type="text"
               min="0"
               max="59"
               value={String(minutes).padStart(2, '0')}
@@ -248,7 +255,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
               ▲
             </button>
             <input
-              type="number"
+              type="text"
               min="0"
               max="59"
               value={String(seconds).padStart(2, '0')}

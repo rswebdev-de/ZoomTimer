@@ -3,7 +3,7 @@
  * Refactored according to official Zoom SDK documentation
  */
 
-import zoomSdk from '@zoom/appssdk';
+import zoomSdk, { DynamicIndicatorOptions } from '@zoom/appssdk';
 
 export class ZoomSDKService {
   private initialized: boolean = false;
@@ -87,11 +87,9 @@ export class ZoomSDKService {
   /**
    * Set dynamic indicator (timer display in meeting)
    * @param displayText - Text to display as indicator
-   * @param ttl - Time-to-live in seconds (optional)
    */
   public async setDynamicIndicator(
     displayText: string,
-    ttl?: number
   ): Promise<void> {
     if (!this.initialized) {
       console.warn('Zoom SDK not initialized');
@@ -99,15 +97,10 @@ export class ZoomSDKService {
     }
 
     try {
-      const options: any = {
-        label: displayText,
-        color: '#1C73E8',
+      const options: DynamicIndicatorOptions = {
+        text: displayText,
+        textColor: '#1C73E8',
       };
-
-      if (ttl) {
-        options.ttl = ttl;
-      }
-
       await zoomSdk.setDynamicIndicator(options);
       console.log('Dynamic indicator set:', displayText);
     } catch (error) {
