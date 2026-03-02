@@ -184,9 +184,10 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             </button>
             <input
               type="number"
+              min="0"
               value={String(hours).padStart(2, '0')}
               onChange={(e) => {
-                const val = parseInt(e.target.value, 10) || 0;
+                const val = Math.max(0, parseInt(e.target.value, 10) || 0);
                 setHours(val);
                 timerManager.init(val, minutes, seconds);
               }}
@@ -215,9 +216,11 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             </button>
             <input
               type="number"
+              min="0"
+              max="59"
               value={String(minutes).padStart(2, '0')}
               onChange={(e) => {
-                const val = Math.min(59, parseInt(e.target.value, 10) || 0);
+                const val = Math.max(0, Math.min(59, parseInt(e.target.value, 10) || 0));
                 setMinutes(val);
                 timerManager.init(hours, val, seconds);
               }}
@@ -246,9 +249,11 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             </button>
             <input
               type="number"
+              min="0"
+              max="59"
               value={String(seconds).padStart(2, '0')}
               onChange={(e) => {
-                const val = Math.min(59, parseInt(e.target.value, 10) || 0);
+                const val = Math.max(0, Math.min(59, parseInt(e.target.value, 10) || 0));
                 setSeconds(val);
                 timerManager.init(hours, minutes, val);
               }}
