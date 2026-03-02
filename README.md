@@ -1,83 +1,96 @@
 # Zoom Timer App
 
-A Zoom Marketplace Timer App that allows users to set timers and use stopwatch functionality during Zoom meetings.
+A Zoom Apps SDK timer and stopwatch that runs inside Zoom meetings. Built with React 18, TypeScript, and Express.
 
 ## Features
 
-- **Timer Functionality**
-  - Set custom hours, minutes, and seconds
-  - Preset timer options
-  - Start, pause, and resume capabilities
-  - Audio alarm when timer expires
-  - Option to show timer to all participants
-
-- **Stopwatch Functionality**
-  - Start/Pause functionality
-  - Reset to clear timing
-  - Track task durations
-
-- **Keyboard Shortcuts**
-  - Enter/Return: Start, pause, and resume
-  - Esc: Cancel timer
-  - Up/Down arrows: Add or remove time
-
-- **Meeting Integration**
-  - Display timer in participant's video tile
-  - Show timer indicator in meeting window
-  - Virtual foreground display of timer
-  - Dynamic indicator for all participants
+- **Timer** -- custom duration or presets (1, 5, 10, 15, 30 min, 1 hour), start/pause/resume/cancel, optional audio alarm
+- **Stopwatch** -- elapsed time tracking with start/pause/resume/reset
+- **Show to all participants** -- renders the timer as a virtual foreground overlay on your video tile via `setVirtualForeground`
+- **Dynamic indicator** -- displays the countdown in the Zoom meeting window via `setDynamicIndicator`
 
 ## Requirements
 
-- Zoom account
-- Zoom desktop client for Windows or macOS (5.14.10 or higher)
-- URL allowlist: https://timer.zoomapp.cloud/
-
-## Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Build the project:
-   ```bash
-   npm run build
-   ```
-
-4. Deploy to Zoom Marketplace
+- Node.js 18+
+- Zoom desktop client for Windows or macOS (v5.14.10+)
 
 ## Development
 
-To start development:
-
 ```bash
-npm run dev
+npm install
+npm run dev       # webpack dev server on http://localhost:3000
+npm test          # run all tests
+npm run build     # production webpack build
 ```
 
-This will start the webpack dev server on `http://localhost:3000`
+## Project Structure
 
-## Architecture
-
-- **src/index.ts** - Main entry point
-- **src/components/** - React components
-- **src/utils/** - Utility functions
-- **src/services/** - Zoom SDK integration
-- **public/** - Static assets
+```
+src/
+  index.tsx                  # entry point, initializes Zoom SDK + React
+  components/
+    App.tsx                  # tab navigation (Timer / Stopwatch)
+    Timer.tsx                # timer UI, Zoom SDK integration
+    Stopwatch.tsx            # stopwatch UI
+  services/
+    ZoomSDKService.ts        # singleton wrapper around @zoom/appssdk
+  utils/
+    TimerManager.ts          # timer state machine (idle/running/paused)
+    StopwatchManager.ts      # stopwatch state machine
+    KeyboardShortcutsManager.ts  # keyboard event handler (not currently wired up)
+public/
+  index.html                 # HTML shell, loads Roboto font
+server.js                    # Express production server with OWASP headers
+```
 
 ## Zoom SDK Integration
 
-The app uses the following Zoom Apps SDK methods:
+The app calls `zoomSdk.config()` on startup to declare capabilities:
 
-- `setVirtualForeground` - Display timer in user's video
-- `removeVirtualForeground` - Remove virtual background
-- `onMyMediaChange` - Monitor video settings changes
-- `setDynamicIndicator` - Display timer in meeting window
+- `setVirtualForeground` / `removeVirtualForeground` -- overlay timer on video tile
+- `setDynamicIndicator` / `removeDynamicIndicator` / `getDynamicIndicator` -- meeting window label
+- `onMyMediaChange` -- react to video/audio changes
+- `getMeetingContext` / `getUserContext` -- meeting and participant info
+- `showNotification` -- in-app notifications
+- `closeApp` -- close the app panel
+
+The server sets the 4 OWASP headers Zoom requires on all HTML responses (`Strict-Transport-Security`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy`). Without these, the Zoom client blocks the app from rendering.
+
+## Docker
+
+Build and run:
+
+```bash
+docker build -t zoom-timer-app .
+docker run -p 3000:3000 -e NODE_ENV=production -e PORT=3000 zoom-timer-app
+```
+
+Or with docker-compose:
+
+```bash
+docker compose up --build
+```
+
+The container exposes port 3000. Place it behind a reverse proxy (nginx, Caddy, etc.) that terminates TLS -- Zoom requires HTTPS for the Home URL.
+
+## Zoom Marketplace Registration
+
+App registration happens entirely through the [Zoom Marketplace portal](https://marketplace.zoom.us/), not through config files in this repo.
+
+1. Create a **General App** at marketplace.zoom.us
+2. Set the **Home URL** to your deployed HTTPS endpoint
+3. Add scope `zoomapp:inmeeting`
+4. Configure an **OAuth Redirect URL** and add your domain to the **OAuth allow list**
+5. Note the generated **Client ID** and **Client Secret** (only needed if you add a backend OAuth flow)
+
+This app is client-side only -- `zoomSdk.config()` handles authentication within the Zoom client's WebView. No backend auth flow is implemented. For Marketplace publication, Zoom's review team may require adding the full OAuth authorization flow.
 
 ## Data Security
 
-This application does not share any personal data. The app uses the `zoomapp:inmeeting` scope to operate within meetings.
+- No personal data is collected or transmitted
+- Timer/stopwatch state exists only in browser memory
+- Uses only the `zoomapp:inmeeting` scope
+- No external API calls
 
 ## License
 
