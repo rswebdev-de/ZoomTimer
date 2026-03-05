@@ -9,6 +9,8 @@ jest.mock('../services/ZoomSDKService', () => ({
   default: {
     setDynamicIndicator: jest.fn(),
     removeDynamicIndicator: jest.fn(),
+    setVirtualForeground: jest.fn(),
+    removeVirtualForeground: jest.fn(),
   },
 }));
 
@@ -66,7 +68,7 @@ describe('Timer Component - Visual Tests', () => {
 
   it('renders three time input fields (hours, minutes, seconds)', () => {
     render(<TimerComponent />);
-    const inputs = screen.getAllByRole('spinbutton');
+    const inputs = screen.getAllByRole('textbox');
     expect(inputs).toHaveLength(3);
   });
 
@@ -203,7 +205,7 @@ describe('Timer Component - Visual Tests', () => {
     });
 
     render(<TimerComponent />);
-    const inputs = screen.getAllByRole('spinbutton');
+    const inputs = screen.getAllByRole('textbox');
     inputs.forEach((input) => expect(input).toBeDisabled());
 
     PRESET_TIMERS.forEach((preset) => {

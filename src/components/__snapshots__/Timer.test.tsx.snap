@@ -25,7 +25,7 @@ exports[`Timer Component - Visual Tests matches snapshot in idle state 1`] = `
           <input
             class="time-input-field"
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button
@@ -54,7 +54,7 @@ exports[`Timer Component - Visual Tests matches snapshot in idle state 1`] = `
             class="time-input-field"
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="01"
           />
           <button
@@ -83,7 +83,7 @@ exports[`Timer Component - Visual Tests matches snapshot in idle state 1`] = `
             class="time-input-field"
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button
@@ -209,7 +209,7 @@ exports[`Timer Component - Visual Tests matches snapshot when audio alarm is tog
           <input
             class="time-input-field"
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button
@@ -238,7 +238,7 @@ exports[`Timer Component - Visual Tests matches snapshot when audio alarm is tog
             class="time-input-field"
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="01"
           />
           <button
@@ -267,7 +267,7 @@ exports[`Timer Component - Visual Tests matches snapshot when audio alarm is tog
             class="time-input-field"
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button
@@ -395,7 +395,7 @@ exports[`Timer Component - Visual Tests shows Pause button when timer is in runn
             class="time-input-field"
             disabled=""
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button
@@ -427,7 +427,7 @@ exports[`Timer Component - Visual Tests shows Pause button when timer is in runn
             disabled=""
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="01"
           />
           <button
@@ -459,7 +459,7 @@ exports[`Timer Component - Visual Tests shows Pause button when timer is in runn
             disabled=""
             max="59"
             min="0"
-            type="number"
+            type="text"
             value="00"
           />
           <button

@@ -29,9 +29,6 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const soundEnabledRef = useRef(soundEnabled);
   const showToAllRef = useRef(showToAll);
 
-  const isRunning = status?.state === 'running';
-  const isPaused = status?.state === 'paused';
-
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
@@ -45,7 +42,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
 
     timerManager.onTick((status) => {
       setStatus(status);
-      if (isRunning) {
+      if (status?.state === 'running') {
         zoomSDKService.setDynamicIndicator(status.displayText);
         if (showToAllRef.current) {
           zoomSDKService.setVirtualForeground(
@@ -54,7 +51,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
         } else {
           zoomSDKService.removeVirtualForeground();
         }
-      } else if (!isPaused && !isRunning) {
+      } else if (status?.state === 'idle') {
         zoomSDKService.removeDynamicIndicator();
         if (showToAllRef.current) {
           zoomSDKService.removeVirtualForeground();
@@ -185,7 +182,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             <button
               onClick={() => handleHourChange(1)}
               className="increment-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▲
             </button>
@@ -198,13 +195,13 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
                 setHours(val);
                 timerManager.init(val, minutes, seconds);
               }}
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
               className="time-input-field"
             />
             <button
               onClick={() => handleHourChange(-1)}
               className="decrement-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▼
             </button>
@@ -217,7 +214,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             <button
               onClick={() => handleMinuteChange(1)}
               className="increment-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▲
             </button>
@@ -231,13 +228,13 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
                 setMinutes(val);
                 timerManager.init(hours, val, seconds);
               }}
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
               className="time-input-field"
             />
             <button
               onClick={() => handleMinuteChange(-1)}
               className="decrement-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▼
             </button>
@@ -250,7 +247,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             <button
               onClick={() => handleSecondChange(1)}
               className="increment-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▲
             </button>
@@ -264,13 +261,13 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
                 setSeconds(val);
                 timerManager.init(hours, minutes, val);
               }}
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
               className="time-input-field"
             />
             <button
               onClick={() => handleSecondChange(-1)}
               className="decrement-btn"
-              disabled={isRunning}
+              disabled={status?.state === 'running'}
             >
               ▼
             </button>
@@ -287,7 +284,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             key={preset.label}
             onClick={() => handlePreset(preset.seconds)}
             className="preset-btn"
-            disabled={isRunning}
+            disabled={status?.state === 'running'}
           >
             {preset.label}
           </button>
@@ -295,9 +292,9 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       </div>
 
       <div className="controls">
-        {!isRunning ? (
+        {status?.state !== 'running' ? (
           <button onClick={handleStart} className="btn btn-primary">
-            {isPaused ? 'Resume' : 'Start'}
+            {status?.state === 'paused' ? 'Resume' : 'Start'}
           </button>
         ) : (
           <button onClick={handlePause} className="btn btn-secondary">

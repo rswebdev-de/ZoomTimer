@@ -62,6 +62,7 @@ export class TimerManager {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    this.notifyTick();
   }
 
   /**
