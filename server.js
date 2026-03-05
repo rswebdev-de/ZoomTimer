@@ -1,8 +1,23 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// PUBLIC_URL: the path prefix where a reverse proxy exposes this app
+// (e.g. "/apps/timer"). Leave empty when served from root.
+const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/+$/, '');
+
+// Pre-render index.html with <base> tag so the browser resolves
+// relative asset URLs (bundle.js, etc.) against the proxy prefix.
+const rawIndexHtml = fs.readFileSync(
+  path.join(__dirname, 'public', 'index.html'),
+  'utf8',
+);
+const indexHtml = PUBLIC_URL
+  ? rawIndexHtml.replace('<head>', `<head>\n    <base href="${PUBLIC_URL}/" />`)
+  : rawIndexHtml;
 
 // Zoom requires these OWASP security headers on all text/html responses.
 // Without them, the app is blocked from rendering in the Zoom client.
@@ -29,8 +44,10 @@ function setSecurityHeaders(res) {
 
 const staticOptions = { setHeaders: setSecurityHeaders };
 
-// Serve static files from public (index.html) and dist (bundle.js)
-app.use(express.static(path.join(__dirname, 'public'), staticOptions));
+// Serve static files from public and dist.
+// index: false prevents express.static from serving index.html for "/",
+// so all HTML responses go through the SPA fallback with <base> injection.
+app.use(express.static(path.join(__dirname, 'public'), { ...staticOptions, index: false }));
 app.use(express.static(path.join(__dirname, 'dist'), staticOptions));
 
 // Health check endpoint
@@ -41,7 +58,7 @@ app.get('/health', (req, res) => {
 // Serve the main index.html for SPA fallback
 app.get('*path', (req, res) => {
   setSecurityHeaders(res);
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.type('html').send(indexHtml);
 });
 
 // Error handling middleware

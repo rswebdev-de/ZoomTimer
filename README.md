@@ -58,20 +58,58 @@ The server sets the 4 OWASP headers Zoom requires on all HTML responses (`Strict
 
 ## Docker
 
-Build and run:
+Three compose files:
+
+| File | Purpose |
+|---|---|
+| `docker-compose.yml` | Base -- app service definition + Dev additions -- ngrok tunnel + nginx reverse proxy |
+| `docker-compose.production.yml` | Prod hardening -- `restart: always`, resource limits, log rotation, removed Dev additions |
+
+### Development
 
 ```bash
-docker build -t zoom-timer-app .
-docker run -p 3000:3000 -e NODE_ENV=production -e PORT=3000 zoom-timer-app
+cp .env.example .env
+# fill in NGROK_AUTHTOKEN and NGROK_DOMAIN
+docker compose up --build -d
 ```
 
-Or with docker-compose:
+| Service | URL |
+|---|---|
+| App (direct) | `http://localhost:3000` |
+| Reverse proxy | `http://localhost:8080${PUBLIC_URL}/` |
+| ngrok HTTPS | `https://<NGROK_DOMAIN>` |
+| ngrok inspector | `http://localhost:4040` |
+
+### Production
+
+Combine the base with the production overlay. This skips the dev override and applies `restart: always`, resource limits (0.5 CPU / 256 MB), and log rotation.
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
 ```
 
-The container exposes port 3000. Place it behind a reverse proxy (nginx, Caddy, etc.) that terminates TLS -- Zoom requires HTTPS for the Home URL.
+With a subdirectory prefix:
+
+```bash
+PUBLIC_URL=/apps/timer docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
+```
+
+Place the container behind your own reverse proxy that terminates TLS -- Zoom requires HTTPS for the Home URL.
+
+### CI/CD
+
+```bash
+# Build
+docker compose -f docker-compose.yml -f docker-compose.production.yml build
+
+# Tag and push to your registry
+docker tag zoomtimer-zoom-timer-app registry.example.com/zoom-timer-app:latest
+docker push registry.example.com/zoom-timer-app:latest
+
+# Deploy on the production host
+docker compose -f docker-compose.yml -f docker-compose.production.yml pull
+docker compose -f docker-compose.yml -f docker-compose.production.yml up -d
+```
 
 ## Zoom Marketplace Registration
 
