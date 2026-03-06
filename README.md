@@ -58,7 +58,7 @@ The server sets the 4 OWASP headers Zoom requires on all HTML responses (`Strict
 
 ## Docker
 
-Three compose files:
+Two compose files:
 
 | File | Purpose |
 |---|---|
@@ -70,7 +70,13 @@ Three compose files:
 ```bash
 cp .env.example .env
 # fill in NGROK_AUTHTOKEN and NGROK_DOMAIN
-docker compose up --build -d
+docker compose --profile dev up --build -d
+```
+
+or
+
+```bash
+npm run docker:compose-dev
 ```
 
 | Service | URL |
@@ -93,6 +99,21 @@ With a subdirectory prefix:
 ```bash
 PUBLIC_URL=/apps/timer docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
 ```
+
+or 
+
+```bash
+echo PUBLIC_URL=/apps/timer >> .env
+docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
+```
+
+or 
+
+```bash
+echo PUBLIC_URL=/apps/timer >> .env
+npm run docker:compose-prod
+```
+
 
 Place the container behind your own reverse proxy that terminates TLS -- Zoom requires HTTPS for the Home URL.
 
