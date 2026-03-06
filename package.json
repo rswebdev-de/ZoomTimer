@@ -7,9 +7,12 @@
     "dev": "webpack serve --mode development",
     "build": "webpack --mode production",
     "start": "node server.js",
-    "docker:compose-dev-detached": "docker compose --profile dev up --build -d",
-    "docker:compose-dev": "docker compose --profile dev up --build",
-    "docker:compose-prod": "docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d",
+    "docker:dev": "docker compose --profile dev",
+    "docker:prod": "docker compose -f docker-compose.yml -f docker-compose.production.yml",
+    "docker:prod:up": "npm run docker:prod -- up --build -d",
+    "docker:dev:up": "npm run docker:dev -- up --build -d",
+    "docker:prod:down": "npm run docker:prod -- down",
+    "docker:dev:down": "npm run docker:dev -- down",
     "test": "jest"
   },
   "keywords": [

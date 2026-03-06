@@ -76,7 +76,7 @@ docker compose --profile dev up --build -d
 or
 
 ```bash
-npm run docker:compose-dev
+npm run docker:dev:up
 ```
 
 | Service | URL |
@@ -85,6 +85,18 @@ npm run docker:compose-dev
 | Reverse proxy | `http://localhost:8080${PUBLIC_URL}/` |
 | ngrok HTTPS | `https://<NGROK_DOMAIN>` |
 | ngrok inspector | `http://localhost:4040` |
+
+#### Stop Development Containers
+
+```bash
+docker compose --profile dev down
+```
+
+or
+
+```bash
+npm run docker:dev:down
+```
 
 ### Production
 
@@ -111,11 +123,22 @@ or
 
 ```bash
 echo PUBLIC_URL=/apps/timer >> .env
-npm run docker:compose-prod
+npm run docker:prod:up
 ```
 
-
 Place the container behind your own reverse proxy that terminates TLS -- Zoom requires HTTPS for the Home URL.
+
+#### Stop Production Container
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.production.yml down
+```
+
+or 
+
+```bash
+npm run docker:prod:down
+```
 
 ### CI/CD
 
