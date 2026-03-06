@@ -228,6 +228,8 @@ export class ZoomSDKService {
     }
 
     try {
+      await zoomSdk.removeDynamicIndicator();
+      await zoomSdk.removeVirtualForeground();
       await zoomSdk.closeApp();
       console.log('App closed');
     } catch (error) {

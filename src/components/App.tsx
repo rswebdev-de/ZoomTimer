@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TimerComponent from './Timer';
 import StopwatchComponent from './Stopwatch';
+import zoomSDKService from '../services/ZoomSDKService';
 import './App.css';
 
 export const AppComponent: React.FC = () => {
@@ -9,7 +10,16 @@ export const AppComponent: React.FC = () => {
   return (
     <div className="app-container">
       <div className="app-header">
-        <h1>Zoom Timer App</h1>
+        <div className="header-row">
+          <h1>Zoom Timer App</h1>
+          <button
+            className="close-btn"
+            onClick={() => zoomSDKService.closeApp()}
+            aria-label="Close app"
+          >
+            &times;
+          </button>
+        </div>
         <div className="tab-navigation">
           <button
             className={`tab-btn ${activeTab === 'timer' ? 'active' : ''}`}

@@ -8,9 +8,19 @@ exports[`App Component - Visual Tests matches snapshot when Stopwatch tab is sel
     <div
       class="app-header"
     >
-      <h1>
-        Zoom Timer App
-      </h1>
+      <div
+        class="header-row"
+      >
+        <h1>
+          Zoom Timer App
+        </h1>
+        <button
+          aria-label="Close app"
+          class="close-btn"
+        >
+          ×
+        </button>
+      </div>
       <div
         class="tab-navigation"
       >
@@ -47,9 +57,19 @@ exports[`App Component - Visual Tests matches snapshot with default timer tab 1`
     <div
       class="app-header"
     >
-      <h1>
-        Zoom Timer App
-      </h1>
+      <div
+        class="header-row"
+      >
+        <h1>
+          Zoom Timer App
+        </h1>
+        <button
+          aria-label="Close app"
+          class="close-btn"
+        >
+          ×
+        </button>
+      </div>
       <div
         class="tab-navigation"
       >
