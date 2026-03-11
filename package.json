@@ -24,7 +24,7 @@
   "author": "Zoom",
   "license": "MIT",
   "dependencies": {
-    "@zoom/appssdk": "^0.16.0",
+    "@zoom/appssdk": "^0.16.37",
     "express": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
