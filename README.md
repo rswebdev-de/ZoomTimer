@@ -4,9 +4,12 @@ A Zoom Apps SDK timer and stopwatch that runs inside Zoom meetings. Built with R
 
 ## Features
 
-- **Timer** -- custom duration or presets (1, 5, 10, 15, 30 min, 1 hour), start/pause/resume/cancel, optional audio alarm
+- **Timer** -- custom duration or presets (1, 5, 10, 15, 30 min, 1 hour), start/pause/resume/cancel
 - **Stopwatch** -- elapsed time tracking with start/pause/resume/reset
-- **Show to all participants** -- renders the timer as a virtual foreground overlay on your video tile via `setVirtualForeground`
+- **Audio alarm** -- plays a tone locally when the timer ends
+- **30-second pre-warning** -- optional toggle; plays a distinct two-beep sound 30 seconds before the timer ends
+- **Show timer to all** -- renders the countdown as a virtual foreground overlay on your video tile via `setVirtualForeground`
+- **Sound alarm to participants** -- optional toggle; broadcasts an alarm signal via `postMessage` so participant app instances play the alarm sound locally (requires participants to have the app open)
 - **Dynamic indicator** -- displays the countdown in the Zoom meeting window via `setDynamicIndicator`
 
 ## Requirements
@@ -45,14 +48,20 @@ server.js                    # Express production server with OWASP headers
 
 ## Zoom SDK Integration
 
-The app calls `zoomSdk.config()` on startup to declare capabilities:
+The app calls `zoomSdk.config()` on startup to declare capabilities. The `configResponse.runningContext` is stored so in-meeting-only features can be gated correctly, and `configResponse.unsupportedApis` is logged as a warning when the user's Zoom client does not support a declared capability.
 
-- `setVirtualForeground` / `removeVirtualForeground` -- overlay timer on video tile
-- `setDynamicIndicator` / `removeDynamicIndicator` / `getDynamicIndicator` -- meeting window label
-- `onMyMediaChange` -- react to video/audio changes
-- `getMeetingContext` / `getUserContext` -- meeting and participant info
-- `showNotification` -- in-app notifications
-- `closeApp` -- close the app panel
+The SDK is initialized with a 3-second timeout — if `zoomSdk.config()` does not respond (e.g., when opened in a browser outside Zoom), the app renders in browser preview mode rather than hanging.
+
+Declared capabilities:
+
+| Capability | Purpose |
+|---|---|
+| `setVirtualForeground` / `removeVirtualForeground` | Overlay timer on host's video tile |
+| `setDynamicIndicator` / `removeDynamicIndicator` | Meeting window countdown label |
+| `postMessage` | Broadcast alarm/warning signal to participant app instances |
+| `onMessage` | Receive alarm/warning signal and play sound on participant side |
+| `showNotification` | In-app notifications |
+| `closeApp` | Close the app panel |
 
 The server sets the 4 OWASP headers Zoom requires on all HTML responses (`Strict-Transport-Security`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy`). Without these, the Zoom client blocks the app from rendering.
 
