@@ -3,10 +3,11 @@
  * Refactored according to official Zoom SDK documentation
  */
 
-import zoomSdk, { DynamicIndicatorOptions, JSONObject } from '@zoom/appssdk';
+import zoomSdk, { DynamicIndicatorOptions, JSONObject, RunningContext } from '@zoom/appssdk';
 
 export class ZoomSDKService {
   private initialized: boolean = false;
+  private runningContext: RunningContext | null = null;
 
   /**
    * Initialize and configure Zoom SDK
@@ -19,12 +20,8 @@ export class ZoomSDKService {
         capabilities: [
           'setDynamicIndicator',
           'removeDynamicIndicator',
-          'getDynamicIndicator',
           'setVirtualForeground',
           'removeVirtualForeground',
-          'getMeetingContext',
-          'getUserContext',
-          'onMyMediaChange',
           'closeApp',
           'showNotification',
           'postMessage',
@@ -32,7 +29,11 @@ export class ZoomSDKService {
         ],
       });
 
-      console.log('Zoom SDK configured successfully:', configResponse);
+      this.runningContext = configResponse.runningContext;
+      if (configResponse.unsupportedApis.length > 0) {
+        console.warn('Unsupported APIs in this Zoom client version:', configResponse.unsupportedApis);
+      }
+      console.log('Zoom SDK configured successfully. Running context:', this.runningContext);
       this.initialized = true;
     } catch (error) {
       console.error('Failed to initialize Zoom SDK:', error);
@@ -45,6 +46,22 @@ export class ZoomSDKService {
    */
   public isInitialized(): boolean {
     return this.initialized;
+  }
+
+  /**
+   * Get the running context returned by config() (e.g. 'inMeeting', 'inMainClient').
+   */
+  public getRunningContext(): RunningContext | null {
+    return this.runningContext;
+  }
+
+  /**
+   * Returns true when the app is running inside an active meeting or immersive view.
+   * In-meeting-only capabilities (setDynamicIndicator, setVirtualForeground) should
+   * be guarded with this check.
+   */
+  public isInMeeting(): boolean {
+    return this.runningContext === 'inMeeting' || this.runningContext === 'inImmersive';
   }
 
   /**
@@ -128,79 +145,6 @@ export class ZoomSDKService {
   }
 
   /**
-   * Get current dynamic indicator
-   */
-  public async getDynamicIndicator(): Promise<any> {
-    if (!this.initialized) {
-      console.warn('Zoom SDK not initialized');
-      return null;
-    }
-
-    try {
-      const indicator = await zoomSdk.getDynamicIndicator();
-      return indicator;
-    } catch (error) {
-      console.error('Failed to get dynamic indicator:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Listen to media changes (video on/off, audio muted/unmuted)
-   */
-  public onMediaChange(callback: (event: any) => void): void {
-    if (!this.initialized) {
-      console.warn('Zoom SDK not initialized');
-      return;
-    }
-
-    try {
-      zoomSdk.onMyMediaChange((event: any) => {
-        console.log('Media changed:', event);
-        callback(event);
-      });
-    } catch (error) {
-      console.error('Failed to setup media change listener:', error);
-    }
-  }
-
-  /**
-   * Get meeting context
-   */
-  public async getMeetingContext(): Promise<any> {
-    if (!this.initialized) {
-      console.warn('Zoom SDK not initialized');
-      return null;
-    }
-
-    try {
-      const context = await zoomSdk.getMeetingContext();
-      return context;
-    } catch (error) {
-      console.error('Failed to get meeting context:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get user context
-   */
-  public async getUserContext(): Promise<any> {
-    if (!this.initialized) {
-      console.warn('Zoom SDK not initialized');
-      return null;
-    }
-
-    try {
-      const context = await zoomSdk.getUserContext();
-      return context;
-    } catch (error) {
-      console.error('Failed to get user context:', error);
-      return null;
-    }
-  }
-
-  /**
    * Broadcast a message to all participants who have the app open.
    * Participants receive it via the onMessage event.
    */
@@ -234,10 +178,12 @@ export class ZoomSDKService {
   }
 
   /**
-   * Show notification to user
+   * Show notification to user.
+   * Note: The SDK's NotificationOptions type has a declaration conflict in its
+   * .d.ts file; the narrow cast here is intentional and safe.
    */
   public async showNotification(options: {
-    type: 'info' | 'success' | 'warning' | 'error';
+    type: 'info' | 'warning' | 'error';
     title: string;
     message: string;
   }): Promise<void> {
@@ -247,7 +193,7 @@ export class ZoomSDKService {
     }
 
     try {
-      await (zoomSdk as any).showNotification(options);
+      await (zoomSdk.showNotification as unknown as (o: typeof options) => Promise<void>)(options);
     } catch (error) {
       console.error('Failed to show notification:', error);
     }
