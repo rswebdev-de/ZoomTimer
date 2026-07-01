@@ -26,6 +26,8 @@ export class TimerManager {
   private intervalId: NodeJS.Timeout | null = null;
   private onTickCallback: ((status: TimerStatus) => void) | null = null;
   private onCompleteCallback: (() => void) | null = null;
+  private onWarningCallback: (() => void) | null = null;
+  private warningFired: boolean = false;
 
   /**
    * Initialize timer with hours, minutes, seconds
@@ -38,6 +40,7 @@ export class TimerManager {
     this.totalSeconds = hours * 3600 + minutes * 60 + seconds;
     this.remainingSeconds = this.totalSeconds;
     this.state = 'idle';
+    this.warningFired = false;
     this.notifyTick();
   }
 
@@ -144,6 +147,13 @@ export class TimerManager {
   }
 
   /**
+   * Set callback for 30-second pre-warning
+   */
+  public onWarning(callback: () => void): void {
+    this.onWarningCallback = callback;
+  }
+
+  /**
    * Format seconds to HH:MM:SS
    */
   private formatTime(seconds: number): string {
@@ -163,6 +173,10 @@ export class TimerManager {
     this.intervalId = setInterval(() => {
       if (this.remainingSeconds > 0) {
         this.remainingSeconds--;
+        if (this.remainingSeconds === 30 && !this.warningFired && this.onWarningCallback) {
+          this.warningFired = true;
+          this.onWarningCallback();
+        }
         this.notifyTick();
       } else {
         this.complete();

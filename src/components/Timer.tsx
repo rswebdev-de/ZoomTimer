@@ -24,10 +24,14 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const [seconds, setSeconds] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showToAll, setShowToAll] = useState(false);
+  const [soundToAll, setSoundToAll] = useState(false);
+  const [preWarning, setPreWarning] = useState(false);
 
   // Use refs to avoid stale closures in callbacks
   const soundEnabledRef = useRef(soundEnabled);
   const showToAllRef = useRef(showToAll);
+  const soundToAllRef = useRef(soundToAll);
+  const preWarningRef = useRef(preWarning);
 
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
@@ -36,6 +40,14 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   useEffect(() => {
     showToAllRef.current = showToAll;
   }, [showToAll]);
+
+  useEffect(() => {
+    soundToAllRef.current = soundToAll;
+  }, [soundToAll]);
+
+  useEffect(() => {
+    preWarningRef.current = preWarning;
+  }, [preWarning]);
 
   useEffect(() => {
     timerManager.init(hours, minutes, seconds);
@@ -63,12 +75,35 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       if (soundEnabledRef.current) {
         playAudio();
       }
+      if (soundToAllRef.current) {
+        zoomSDKService.postMessage({ type: 'alarm' });
+      }
       zoomSDKService.removeDynamicIndicator();
       if (showToAllRef.current) {
         zoomSDKService.removeVirtualForeground();
       }
       if (onComplete) {
         onComplete();
+      }
+    });
+
+    timerManager.onWarning(() => {
+      if (preWarningRef.current) {
+        if (soundEnabledRef.current) {
+          playWarningAudio();
+        }
+        if (soundToAllRef.current) {
+          zoomSDKService.postMessage({ type: 'warning' });
+        }
+      }
+    });
+
+    zoomSDKService.onMessage((event) => {
+      const type = (event.payload as { type?: string }).type;
+      if (type === 'alarm') {
+        playAudio();
+      } else if (type === 'warning') {
+        playWarningAudio();
       }
     });
 
@@ -113,6 +148,27 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       oscillator.stop(audioContext.currentTime + 0.5);
     } catch (error) {
       console.error('Failed to play audio:', error);
+    }
+  };
+
+  const playWarningAudio = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      for (let i = 0; i < 2; i++) {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+        const beepStart = audioContext.currentTime + i * 0.35;
+        gainNode.gain.setValueAtTime(0.2, beepStart);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, beepStart + 0.25);
+        oscillator.start(beepStart);
+        oscillator.stop(beepStart + 0.25);
+      }
+    } catch (error) {
+      console.error('Failed to play warning audio:', error);
     }
   };
 
@@ -326,6 +382,24 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
             onChange={(e) => setShowToAll(e.target.checked)}
           />
           <span>Show timer to all</span>
+        </label>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={soundToAll}
+            onChange={(e) => setSoundToAll(e.target.checked)}
+          />
+          <span>Sound alarm to participants</span>
+        </label>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={preWarning}
+            onChange={(e) => setPreWarning(e.target.checked)}
+          />
+          <span>30-second pre-warning</span>
         </label>
       </div>
     </div>

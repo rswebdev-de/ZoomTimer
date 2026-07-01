@@ -179,6 +179,26 @@ exports[`Timer Component - Visual Tests matches snapshot in idle state 1`] = `
           Show timer to all
         </span>
       </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          Sound alarm to participants
+        </span>
+      </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          30-second pre-warning
+        </span>
+      </label>
     </div>
   </div>
 </div>
@@ -361,6 +381,26 @@ exports[`Timer Component - Visual Tests matches snapshot when audio alarm is tog
         />
         <span>
           Show timer to all
+        </span>
+      </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          Sound alarm to participants
+        </span>
+      </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          30-second pre-warning
         </span>
       </label>
     </div>
@@ -560,6 +600,26 @@ exports[`Timer Component - Visual Tests shows Pause button when timer is in runn
         />
         <span>
           Show timer to all
+        </span>
+      </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          Sound alarm to participants
+        </span>
+      </label>
+      <label
+        class="checkbox-label"
+      >
+        <input
+          type="checkbox"
+        />
+        <span>
+          30-second pre-warning
         </span>
       </label>
     </div>

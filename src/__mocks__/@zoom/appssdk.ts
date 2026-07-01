@@ -10,6 +10,8 @@ const zoomSdk = {
   onMyMediaChange: jest.fn(),
   closeApp: jest.fn().mockResolvedValue({}),
   showNotification: jest.fn().mockResolvedValue({}),
+  postMessage: jest.fn().mockResolvedValue({ message: 'Success' }),
+  onMessage: jest.fn(),
 };
 
 export default zoomSdk;

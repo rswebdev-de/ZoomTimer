@@ -3,7 +3,7 @@
  * Refactored according to official Zoom SDK documentation
  */
 
-import zoomSdk, { DynamicIndicatorOptions } from '@zoom/appssdk';
+import zoomSdk, { DynamicIndicatorOptions, JSONObject } from '@zoom/appssdk';
 
 export class ZoomSDKService {
   private initialized: boolean = false;
@@ -27,6 +27,8 @@ export class ZoomSDKService {
           'onMyMediaChange',
           'closeApp',
           'showNotification',
+          'postMessage',
+          'onMessage',
         ],
       });
 
@@ -195,6 +197,39 @@ export class ZoomSDKService {
     } catch (error) {
       console.error('Failed to get user context:', error);
       return null;
+    }
+  }
+
+  /**
+   * Broadcast a message to all participants who have the app open.
+   * Participants receive it via the onMessage event.
+   */
+  public async postMessage(payload: JSONObject): Promise<void> {
+    if (!this.initialized) {
+      console.warn('Zoom SDK not initialized');
+      return;
+    }
+
+    try {
+      await zoomSdk.postMessage(payload);
+    } catch (error) {
+      console.error('Failed to post message:', error);
+    }
+  }
+
+  /**
+   * Listen for messages broadcast from the host app instance.
+   */
+  public onMessage(callback: (event: { timestamp: number; payload: JSONObject }) => void): void {
+    if (!this.initialized) {
+      console.warn('Zoom SDK not initialized');
+      return;
+    }
+
+    try {
+      zoomSdk.onMessage(callback);
+    } catch (error) {
+      console.error('Failed to register message listener:', error);
     }
   }
 

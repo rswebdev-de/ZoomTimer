@@ -11,6 +11,8 @@ jest.mock('../services/ZoomSDKService', () => ({
     removeDynamicIndicator: jest.fn(),
     setVirtualForeground: jest.fn(),
     removeVirtualForeground: jest.fn(),
+    postMessage: jest.fn(),
+    onMessage: jest.fn(),
   },
 }));
 
@@ -23,6 +25,7 @@ const mockStop = jest.fn();
 const mockReset = jest.fn();
 const mockOnTick = jest.fn();
 const mockOnComplete = jest.fn();
+const mockOnWarning = jest.fn();
 
 jest.mock('../utils/TimerManager', () => {
   return {
@@ -36,6 +39,7 @@ jest.mock('../utils/TimerManager', () => {
       reset: mockReset,
       onTick: mockOnTick,
       onComplete: mockOnComplete,
+      onWarning: mockOnWarning,
       getStatus: jest.fn().mockReturnValue({
         state: 'idle',
         remainingSeconds: 60,
