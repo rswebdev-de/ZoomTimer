@@ -32,6 +32,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const showToAllRef = useRef(showToAll);
   const soundToAllRef = useRef(soundToAll);
   const preWarningRef = useRef(preWarning);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
@@ -107,10 +108,28 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       }
     });
 
+    // Browsers suspend AudioContext until a user gesture occurs inside this
+    // document. Participants who never click anything in the panel would
+    // otherwise have their alarm silently swallowed, so unlock it eagerly.
+    const unlockAudioContext = () => {
+      getAudioContext().resume().catch(() => undefined);
+    };
+    document.addEventListener('pointerdown', unlockAudioContext);
+    document.addEventListener('keydown', unlockAudioContext);
+
     return () => {
       timerManager.stop();
+      document.removeEventListener('pointerdown', unlockAudioContext);
+      document.removeEventListener('keydown', unlockAudioContext);
     };
   }, []);
+
+  const getAudioContext = (): AudioContext => {
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContextRef.current;
+  };
 
   const createTimerImageData = (displayText: string): ImageData => {
     const canvas = document.createElement('canvas');
@@ -131,7 +150,10 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
 
   const playAudio = () => {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = getAudioContext();
+      // A message-triggered play has no gesture of its own; resume in case the
+      // earlier unlock listener hasn't fired yet on this participant's page.
+      audioContext.resume().catch(() => undefined);
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -153,7 +175,8 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
 
   const playWarningAudio = () => {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = getAudioContext();
+      audioContext.resume().catch(() => undefined);
       for (let i = 0; i < 2; i++) {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -392,6 +415,11 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
           />
           <span>Sound alarm to participants</span>
         </label>
+        {soundToAll && (
+          <p className="option-hint">
+            Only participants who have this app open will hear the alarm.
+          </p>
+        )}
 
         <label className="checkbox-label">
           <input
