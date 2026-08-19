@@ -24,7 +24,7 @@ export class ZoomSDKService {
           'removeVirtualForeground',
           'closeApp',
           'showNotification',
-          'postMessage',
+          'sendMessage',
           'onMessage',
         ],
       });
@@ -146,18 +146,21 @@ export class ZoomSDKService {
 
   /**
    * Broadcast a message to all participants who have the app open.
-   * Participants receive it via the onMessage event.
+   * Participants receive it via the onMessage event. Uses sendMessage, not
+   * postMessage -- postMessage only mirrors state to this same user's
+   * main-client instance and requires connect() first; it never reaches
+   * other participants.
    */
-  public async postMessage(payload: JSONObject): Promise<void> {
+  public async sendMessage(payload: JSONObject): Promise<void> {
     if (!this.initialized) {
       console.warn('Zoom SDK not initialized');
       return;
     }
 
     try {
-      await zoomSdk.postMessage(payload);
+      await zoomSdk.sendMessage({ payload });
     } catch (error) {
-      console.error('Failed to post message:', error);
+      console.error('Failed to send message:', error);
     }
   }
 

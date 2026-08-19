@@ -11,7 +11,7 @@ jest.mock('../services/ZoomSDKService', () => ({
     removeDynamicIndicator: jest.fn(),
     setVirtualForeground: jest.fn(),
     removeVirtualForeground: jest.fn(),
-    postMessage: jest.fn(),
+    sendMessage: jest.fn(),
     onMessage: jest.fn(),
   },
 }));

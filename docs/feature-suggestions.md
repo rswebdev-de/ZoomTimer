@@ -6,7 +6,7 @@ Ideas discussed but not yet implemented. Recorded here for future scoping.
 
 **Problem**: Today every participant who opens the app runs their own independent
 timer. "Sound alarm to participants" only reaches participants who already have
-the app open, since `postMessage`/`onMessage` is peer-to-peer between running
+the app open, since `sendMessage`/`onMessage` is peer-to-peer between running
 app instances, not a meeting-wide broadcast.
 
 **Idea**: Make the timer a single shared countdown controlled by the meeting
@@ -22,7 +22,7 @@ instead of running their own.
 **What it would take:**
 - Re-add the `getUserContext` capability (removed in the guidelines audit) to
   read `role` and determine host/co-host.
-- A small sync protocol over `postMessage`: host broadcasts
+- A small sync protocol over `sendMessage`: host broadcasts
   `{ action: 'start' | 'pause' | 'resume' | 'reset' | 'cancel', endAt, remainingSeconds }`
   on every control action.
 - Late-joiner support: a participant who opens the app mid-countdown needs a
@@ -31,7 +31,7 @@ instead of running their own.
 - Each participant's own "Audio alarm" / "30-second pre-warning" checkboxes
   would keep deciding locally whether *they* hear a sound once the synced
   countdown reaches zero/30s remaining — this removes the dependency on a
-  one-shot `postMessage` alarm signal arriving at exactly the right instant.
+  one-shot `sendMessage` alarm signal arriving at exactly the right instant.
 - Updated tests (`Timer.test.tsx`, `TimerManager`) and docs
   (`README.md`, `docs/manual.md`) to reflect the new host/participant model.
 

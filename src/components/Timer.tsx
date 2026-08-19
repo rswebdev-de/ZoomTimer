@@ -77,7 +77,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
         playAudio();
       }
       if (soundToAllRef.current) {
-        zoomSDKService.postMessage({ type: 'alarm' });
+        zoomSDKService.sendMessage({ type: 'alarm' });
       }
       zoomSDKService.removeDynamicIndicator();
       if (showToAllRef.current) {
@@ -94,7 +94,7 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
           playWarningAudio();
         }
         if (soundToAllRef.current) {
-          zoomSDKService.postMessage({ type: 'warning' });
+          zoomSDKService.sendMessage({ type: 'warning' });
         }
       }
     });

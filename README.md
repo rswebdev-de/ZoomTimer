@@ -9,7 +9,7 @@ A Zoom Apps SDK timer and stopwatch that runs inside Zoom meetings. Built with R
 - **Audio alarm** -- plays a tone locally when the timer ends
 - **30-second pre-warning** -- optional toggle; plays a distinct two-beep sound 30 seconds before the timer ends
 - **Show timer to all** -- renders the countdown as a virtual foreground overlay on your video tile via `setVirtualForeground`
-- **Sound alarm to participants** -- optional toggle; broadcasts an alarm signal via `postMessage` so participant app instances play the alarm sound locally (requires participants to have the app open)
+- **Sound alarm to participants** -- optional toggle; broadcasts an alarm signal via `sendMessage` so participant app instances play the alarm sound locally (requires participants to have the app open)
 - **Dynamic indicator** -- displays the countdown in the Zoom meeting window via `setDynamicIndicator`
 
 ## Requirements
@@ -58,7 +58,7 @@ Declared capabilities:
 |---|---|
 | `setVirtualForeground` / `removeVirtualForeground` | Overlay timer on host's video tile |
 | `setDynamicIndicator` / `removeDynamicIndicator` | Meeting window countdown label |
-| `postMessage` | Broadcast alarm/warning signal to participant app instances |
+| `sendMessage` | Broadcast alarm/warning signal to participant app instances (not `postMessage`, which only mirrors state to the same user's main-client instance and requires `connect()`) |
 | `onMessage` | Receive alarm/warning signal and play sound on participant side |
 | `showNotification` | In-app notifications |
 | `closeApp` | Close the app panel |

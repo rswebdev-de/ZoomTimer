@@ -4,9 +4,9 @@ description: >
   Zoom Developer Platform guidance for the ZoomTimer project. Use when building
   with the Zoom Apps SDK, Zoom REST API, OAuth, webhooks, WebSockets, Meeting SDK,
   Video SDK, Plugin SDK, RTMS, Team Chat, or any other Zoom platform product.
-  Covers in-meeting apps, SDK capabilities, postMessage/onMessage, virtual
+  Covers in-meeting apps, SDK capabilities, sendMessage/onMessage, virtual
   foreground, dynamic indicators, authentication, and routing to all Zoom skills.
-  Triggers: zoom apps sdk, in-meeting app, postMessage, virtual foreground,
+  Triggers: zoom apps sdk, in-meeting app, sendMessage, postMessage, virtual foreground,
   dynamic indicator, zoom api, zoom oauth, zoom webhook, zoom sdk, zoom meeting,
   zoom timer, zoom integration.
 ---
@@ -28,7 +28,7 @@ skills at [github.com/zoom/skills](https://github.com/zoom/skills).
 | Framework | React + TypeScript |
 | Running context | Inside Zoom client (in-meeting app) |
 | Primary SDK version | `0.16` |
-| Key capabilities | `setDynamicIndicator`, `setVirtualForeground`, `postMessage`, `onMessage`, `showNotification`, `closeApp` |
+| Key capabilities | `setDynamicIndicator`, `setVirtualForeground`, `sendMessage`, `onMessage`, `showNotification`, `closeApp` |
 
 ---
 
@@ -87,21 +87,23 @@ uses.
 |------|-----------|-------|
 | Show countdown in host's meeting UI | `setDynamicIndicator` | Host-only; visible in title bar area |
 | Show overlay on host's video tile | `setVirtualForeground` | Requires `ImageData`; host camera must be on |
-| Broadcast a message to all participant app instances | `postMessage` | Participants must have the app open to receive |
-| Receive messages from host | `onMessage` | `event.payload` is a `JSONObject` |
+| Broadcast a message to all participant app instances | `sendMessage` | Participants must have the app open to receive; not `postMessage` -- that pairs with `connect()` for same-user main-client mirroring only |
+| Receive messages from host | `onMessage` | `event.payload` is a `JSONObject`; receives both `sendMessage` and `postMessage` deliveries |
 | Show an in-meeting notification | `showNotification` | Type: `info \| success \| warning \| error` |
 | Close the app programmatically | `closeApp` | Cleans up indicator and foreground first |
 
-### postMessage / onMessage Pattern
+### sendMessage / onMessage Pattern
 
-`postMessage` broadcasts a `JSONObject` payload to every participant who has the
+`sendMessage` broadcasts a `JSONObject` payload to every participant who has the
 app open. This is the **only** SDK mechanism for triggering an action (e.g., playing
 a sound) on a participant's device — it requires the participant to have the app
-running.
+running. Do not confuse this with `postMessage`, which requires calling `connect()`
+first and only reaches the same user's own main-client app instance, not other
+participants.
 
 ```typescript
 // Host broadcasts an event
-await zoomSdk.postMessage({ type: 'alarm' });
+await zoomSdk.sendMessage({ payload: { type: 'alarm' } });
 
 // Participant's app instance receives it
 zoomSdk.onMessage((event) => {
@@ -111,7 +113,7 @@ zoomSdk.onMessage((event) => {
 });
 ```
 
-Add both `'postMessage'` and `'onMessage'` to the `capabilities` array in `config()`.
+Add both `'sendMessage'` and `'onMessage'` to the `capabilities` array in `config()`.
 
 ---
 
