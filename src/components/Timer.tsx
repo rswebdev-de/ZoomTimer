@@ -33,6 +33,10 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
   const soundToAllRef = useRef(soundToAll);
   const preWarningRef = useRef(preWarning);
   const audioContextRef = useRef<AudioContext | null>(null);
+  // Tracks whether the SDK actually has an indicator/foreground set, so we
+  // don't call remove() when there's nothing to remove (avoids SDK errors).
+  const indicatorActiveRef = useRef(false);
+  const foregroundActiveRef = useRef(false);
 
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
@@ -57,17 +61,24 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       setStatus(status);
       if (status?.state === 'running') {
         zoomSDKService.setDynamicIndicator(status.displayText);
+        indicatorActiveRef.current = true;
         if (showToAllRef.current) {
           zoomSDKService.setVirtualForeground(
             createTimerImageData(status.displayText)
           );
-        } else {
+          foregroundActiveRef.current = true;
+        } else if (foregroundActiveRef.current) {
           zoomSDKService.removeVirtualForeground();
+          foregroundActiveRef.current = false;
         }
       } else if (status?.state === 'idle') {
-        zoomSDKService.removeDynamicIndicator();
-        if (showToAllRef.current) {
+        if (indicatorActiveRef.current) {
+          zoomSDKService.removeDynamicIndicator();
+          indicatorActiveRef.current = false;
+        }
+        if (foregroundActiveRef.current) {
           zoomSDKService.removeVirtualForeground();
+          foregroundActiveRef.current = false;
         }
       }
     });
@@ -79,9 +90,13 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
       if (soundToAllRef.current) {
         zoomSDKService.sendMessage({ type: 'alarm' });
       }
-      zoomSDKService.removeDynamicIndicator();
-      if (showToAllRef.current) {
+      if (indicatorActiveRef.current) {
+        zoomSDKService.removeDynamicIndicator();
+        indicatorActiveRef.current = false;
+      }
+      if (foregroundActiveRef.current) {
         zoomSDKService.removeVirtualForeground();
+        foregroundActiveRef.current = false;
       }
       if (onComplete) {
         onComplete();
@@ -216,9 +231,13 @@ export const TimerComponent: React.FC<TimerComponentProps> = ({ onComplete }) =>
 
   const handleCancel = () => {
     timerManager.stop();
-    zoomSDKService.removeDynamicIndicator();
-    if (showToAllRef.current) {
+    if (indicatorActiveRef.current) {
+      zoomSDKService.removeDynamicIndicator();
+      indicatorActiveRef.current = false;
+    }
+    if (foregroundActiveRef.current) {
       zoomSDKService.removeVirtualForeground();
+      foregroundActiveRef.current = false;
     }
   };
 
